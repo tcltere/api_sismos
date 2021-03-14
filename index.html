@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <title>Sismos_api</title>
+</head>
+<body>
+
+
+
+
+  <div class="container">
+    <h2>Aplicación SISMOS</h2>
+    <hr>
+    <label class="lbl" for="text">Ingrese fecha:</label>
+      <input type="text" class="fecha">
+      <hr>
+    <div class="sismo_prof">
+        <input type="button" class="btn2 btn-secondary btn-sm"  value="Ver sismo mayor">
+        <input type="button" class="btn3 btn-secondary btn-sm"  value="Ver sismos profundidad inferior a 40">
+        <li class="mayor"></li>
+    </div>
+    <hr>
+    <div class="sismos_fecha">
+        <input type="button" class="btn btn-secondary btn-sm"  value="Ver datos">
+        <h6>SISMOS POR FECHA:</h6>
+    </div>
+    <hr>
+      <div class=" contenedor">
+          <li class="li"><p></p></li>
+          <h6>TOTAL SISMOS INGRESADOS A AGENCIA:</h6>
+     </div>
+     <hr>
+   </div>
+<script>
+
+$('.btn').click(function(){
+  var fecha=$('.fecha').val();
+  var cont=0;
+  var max=0;
+  $.ajax({
+    type:"GET",
+    url:"https://api.gael.cl/general/public/sismos",
+    dataType:'json',
+    success:function(data){
+      data.forEach(value => {
+      fecha1= value.Fecha;
+        if(fecha == fecha1.substring(0,10)){
+          $('<li/>').text("FECHA : "+value.Fecha +" , "+"Ubicacion :  "+value.RefGeografica+" , "+"Magnitud :  "+value.Magnitud.substring(0,3)).appendTo('.sismos_fecha');
+        }
+
+      });
+
+      data.forEach(value =>{
+        fecha=value.Fecha;
+        if(value.Agencia== "GUC"){
+          ++cont;
+          $('<li/>').text("Ubicacion :   "+value.RefGeografica+"  ..."+"  Magnitud :  "+value.Magnitud.substring(0,3)+"..."   +"  Profundidad  :   "+value.Profundidad+"..."+"  Fecha  :  "  + fecha.substring(0,10)).appendTo('.contenedor');
+          $('.li').text("Total de sismos ingresados a agencia GUC:"+"     " + cont).appendTo('.contenedor');
+
+        }
+      });
+
+    },
+
+  });
+});
+$('.btn2').click(function(){
+  var fecha=$('.fecha').val();
+  var max=0;
+  $.ajax({
+    type:"GET",
+    url:"https://api.gael.cl/general/public/sismos",
+    success:function(data){
+      data.forEach(value => {
+        fecha1= value.Fecha;
+
+        if(fecha==fecha1.substring(0,10)){
+
+          if(parseFloat(value.Magnitud) > max) {
+            max = parseFloat(value.Magnitud);
+          $('.mayor').text("Sismo de mayor magnitud : "+ value.Magnitud.substring(0,3)+"  Profundidad  : "+value.Profundidad+" , "+ " Locación : "+  value.RefGeografica+" , "+" Fecha : "+ value.Fecha).appendTo('.sismo_prof')
+          }
+        };
+
+      });
+
+    },
+    dataType:'json'
+  });
+});
+$('.btn3').click(function(){
+  var fecha=$('.fecha').val();
+  var max=0;
+  $.ajax({
+    type:"GET",
+    url:"https://api.gael.cl/general/public/sismos",
+    success:function(data){
+      data.forEach(value => {
+        fecha1= value.Fecha;
+
+        if(fecha==fecha1.substring(0,10)){
+
+          if(value.Profundidad < 40) {
+
+          $('<li/>').text("Sismos de profundidad menos de 40 km : "+"profundidad:"+ value.Profundidad + " , "+"Fecha :"+ fecha.substring(0,10)+ " , "+"Ubicacion : "+ value.RefGeografica).appendTo('.sismo_prof')
+          }
+        };
+
+      });
+
+    },
+    dataType:'json'
+  });
+});
+</script>
+</body>
+</html>
